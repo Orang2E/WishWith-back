@@ -76,3 +76,21 @@ class DBhandler:
             }
             self.db.child("review").child(data['name']).set(review_info)
             return True
+    
+    #그룹 과제2 전체, 상세 리뷰조회 화면 함수 추가 
+    def get_reviews(self):
+        reviews = self.db.child("review").get().val()
+        return reviews
+    
+    def get_review_byname(self, review_name):
+        reviews = self.db.child("review").get()
+        target_review = None
+
+        for res in reviews.each():
+            if res.key() == review_name:
+                target_review = res.val()
+                break
+
+        return target_review
+
+    
