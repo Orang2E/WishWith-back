@@ -21,7 +21,17 @@ def login():
     return render_template('login.html')
 
 
-
+@app.route("/login_confirm", methods=['POST'])
+def login_user():
+    id_=request.form['id']
+    pw=request.form['password']
+    pw_hash = hashlib.sha256(pw.encode('utf-8')).hexdigest()
+    if DB.find_user(id_,pw_hash):
+        session['id']=id_
+        return redirect(url_for('index'))
+    else:
+        flash("존재하지 않는 정보입니다! 다시 로그인을 시도해주세요.")
+        return redirect(url_for('login'))
 
 
 @app.route("/product-add") 
@@ -116,7 +126,7 @@ def register_user():
     pw_hash = hashlib.sha256(pw.encode('utf-8')).hexdigest()
     
     if DB.insert_user(data, pw_hash):
-        return render_template("signup2.html")
+        return render_template("signup3.html")
     else:
         flash("user id already exist!")
         return render_template("signup1.html")
@@ -143,11 +153,8 @@ def reg_review():
         "img_path": "static/img/" + image_file.filename
     }
     DB.reg_review(data, image_file.filename)
-    return redirect(url_for('login'))
+    return redirect(url_for('view_review'))
 
-
-if __name__ == '__main__':
-    app.run('0.0.0.0', port=5000, debug=True)
 
 
     # 그룹 과제 2 전체리뷰조회화면 추가
@@ -169,7 +176,7 @@ def view_review():
         else: 
             locals()['data_{}'.format(i)] = dict(list(data.items())[i*per_row:(i+1)*per_row])
     return render_template(
-        "review.html",
+        "reviews_list.html",
         datas=data.items(),
         row1=locals()['data_0'].items(),
         row2=locals()['data_1'].items(),
@@ -188,3 +195,7 @@ def view_review_detail(review_name):
     else:
         flash("Review not found!")
         return redirect(url_for('view_list'))
+    
+
+if __name__ == '__main__':
+    app.run('0.0.0.0', port=5002, debug=True)
